@@ -122,4 +122,4 @@ class DESWeakLensing3x2pt(BaseCalculator):
         self.Hs = TwoPT['Hs']
         self.nz_lens = TwoPT['nz_lens']
         self.nz_source = TwoPT['nz_source']
-        print(params)
+        #print(params)
