@@ -1,0 +1,22 @@
+{
+  "upstream_commit": "f50e1a8ab8fac601cafb4c96524a1b0089dcbb5b",
+  "pre_merge_backup": "3a23f1098419e47cad23cca211bd903dbe3ae655",
+  "merge_conflicts": false,
+  "pytest": {
+    "paths": [
+      "desilike/theories/weak_lensing/tests/test_migration.py",
+      "desilike/tests/test_context.py",
+      "desilike/emulators/tests/test_api.py",
+      "desilike/samples/tests/test_profiles.py"
+    ],
+    "passed": 97,
+    "failed": 1,
+    "failure": "test_a_bare_deploy_carries_the_trained_grid_not_the_default: ClassEngine has no comoving_transverse_distance",
+    "failure_reproduced_on_pre_merge_snapshot": true
+  },
+  "sampler_validation": "passed: exact CAMB and emulated likelihood; finite chains, walker motion, posterior recheck, save/reload",
+  "sampler_loglikelihood_range_max_change": {
+    "exact": 5.684341886080802e-14,
+    "emulated": 0.0
+  }
+}

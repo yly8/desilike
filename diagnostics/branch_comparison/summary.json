@@ -5,15 +5,17 @@
   "comparison_branch": "refactor-jax",
   "original_base": "cf153007cf243be541d5a82390fa85de88ccee60",
   "latest_upstream": "f50e1a8ab8fac601cafb4c96524a1b0089dcbb5b",
-  "upstream_commits_not_merged": [
+  "local_source_diff_stat": " .gitignore                                         |   3 +\n desilike/likelihoods/weak_lensing/__init__.py      |   1 +\n desilike/likelihoods/weak_lensing/des_y3.py        | 252 +++++++++++++\n desilike/theories/primordial_cosmology.py          |  28 +-\n desilike/theories/weak_lensing/README.md           | 108 ++++++\n desilike/theories/weak_lensing/__init__.py         |   8 +\n desilike/theories/weak_lensing/base.py             | 408 +++++++++++++++++++++\n desilike/theories/weak_lensing/data.py             |  15 +\n desilike/theories/weak_lensing/des.py              | 349 ++++++++++++++++++\n desilike/theories/weak_lensing/des_y3.py           | 112 ++++++\n .../theories/weak_lensing/tests/test_migration.py  | 136 +++++++\n desilike/theories/weak_lensing/weak_lensing.yaml   | 361 ++++++++++++++++++\n diagnostics/weak_lensing_sampler/smoke_test.py     | 104 ++++++\n pyproject.toml                                     |   1 +\n 14 files changed, 1879 insertions(+), 7 deletions(-)\n",
+  "notes": [
+    "The two upstream commits through f50e1a8ab8fac601cafb4c96524a1b0089dcbb5b have been merged.",
+    "local_changes.patch preserves the original backup changes relative to original_base.",
+    "snapshot_vs_latest_upstream.patch now shows only local source changes relative to the merged upstream.",
+    "Patches omit bundled numerical data, notebook outputs and plots; these remain backed up in the branch."
+  ],
+  "pre_merge_backup": "3a23f1098419e47cad23cca211bd903dbe3ae655",
+  "upstream_commits_merged": [
     "f50e1a8 Constraint nodes and override context; emulator training ranges as constraints; BlackjaxLAPS",
     "62af9a1 Profiles.update: keep per-run rows aligned when a run has no error"
   ],
-  "local_source_diff_stat": " .gitignore                                         |   3 +\n desilike/likelihoods/weak_lensing/__init__.py      |   1 +\n desilike/likelihoods/weak_lensing/des_y3.py        | 252 +++++++++++++\n desilike/theories/primordial_cosmology.py          |  28 +-\n desilike/theories/weak_lensing/README.md           | 108 ++++++\n desilike/theories/weak_lensing/__init__.py         |   8 +\n desilike/theories/weak_lensing/base.py             | 408 +++++++++++++++++++++\n desilike/theories/weak_lensing/data.py             |  15 +\n desilike/theories/weak_lensing/des.py              | 349 ++++++++++++++++++\n desilike/theories/weak_lensing/des_y3.py           | 112 ++++++\n .../theories/weak_lensing/tests/test_migration.py  | 136 +++++++\n desilike/theories/weak_lensing/weak_lensing.yaml   | 361 ++++++++++++++++++\n diagnostics/weak_lensing_sampler/smoke_test.py     | 104 ++++++\n pyproject.toml                                     |   1 +\n 14 files changed, 1879 insertions(+), 7 deletions(-)\n",
-  "notes": [
-    "Snapshot preserves the tested local state; latest upstream commits have not been merged.",
-    "local_changes.patch compares staged code against the original base (also the current merge base).",
-    "snapshot_vs_latest_upstream.patch compares source snapshots directly; includes differences due to unmerged upstream changes.",
-    "Patches omit bundled numerical data, notebook outputs and plots; these are backed up separately in the branch."
-  ]
+  "upstream_commits_not_merged": []
 }
