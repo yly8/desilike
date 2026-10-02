@@ -1,0 +1,59 @@
+{
+  "python": "/opt/anaconda3/bin/python",
+  "cosmoprimo": "/Users/illyasviel/.local/lib/python3.12/site-packages/cosmoprimo/__init__.py",
+  "lsstypes": "/Users/illyasviel/.local/lib/python3.12/site-packages/lsstypes/__init__.py",
+  "jax": "0.6.2",
+  "cases": {
+    "exact": {
+      "parameters": [
+        "h",
+        "DES_m1"
+      ],
+      "steps": 6,
+      "walkers": 8,
+      "stored_shape": [
+        6,
+        8
+      ],
+      "seconds_including_setup_and_compilation": 135.8991061249999,
+      "loglikelihood_range": [
+        -383.5184690530487,
+        -381.69182028209326
+      ],
+      "finite": true,
+      "walkers_moved": true,
+      "posterior_recheck": true,
+      "save_reload": true,
+      "chain": "/Users/illyasviel/Desktop/project/desilike/diagnostics/weak_lensing_sampler/exact.h5"
+    },
+    "emulated": {
+      "parameters": [
+        "DES_m1"
+      ],
+      "steps": 12,
+      "walkers": 8,
+      "stored_shape": [
+        12,
+        8
+      ],
+      "seconds_including_setup_and_compilation": 1.1003116669999145,
+      "loglikelihood_range": [
+        -384.0100558771828,
+        -378.98823720769474
+      ],
+      "finite": true,
+      "walkers_moved": true,
+      "posterior_recheck": true,
+      "save_reload": true,
+      "chain": "/Users/illyasviel/Desktop/project/desilike/diagnostics/weak_lensing_sampler/emulated.h5"
+    }
+  },
+  "emulator_delta_chi2": -0.0,
+  "configuration": {
+    "Weyl": true,
+    "Limber": false,
+    "use_sr": true
+  },
+  "purpose": "Integration smoke test, not convergence or speed comparison",
+  "installed_cosmoprimo_commit": "99c59fbd57c91addff382b1f1a2e1ccffbf876a2"
+}

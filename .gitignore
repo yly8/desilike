@@ -30,3 +30,6 @@ docs/api/_autosummary
 
 # Unit test / coverage reports
 **/.coverage
+
+# macOS metadata
+.DS_Store

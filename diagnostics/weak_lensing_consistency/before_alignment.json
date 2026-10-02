@@ -1,0 +1,28 @@
+{
+  "reference_chi2": 765.6258096255564,
+  "desilike_chi2": 762.4087834088641,
+  "xip": {
+    "max_scaled": 0.00031859340707215495,
+    "rms_scaled": 0.0003420216155059156,
+    "max_relative": 0.002823792882663133,
+    "finite": true
+  },
+  "xim": {
+    "max_scaled": 0.0002835600905523821,
+    "rms_scaled": 0.0003423455102684934,
+    "max_relative": 0.0043012677639112625,
+    "finite": true
+  },
+  "gammat": {
+    "max_scaled": 0.00041498545940471624,
+    "rms_scaled": 0.0002846641947710809,
+    "max_relative": 0.00656095572771655,
+    "finite": true
+  },
+  "wtheta": {
+    "max_scaled": 0.000333778427446513,
+    "rms_scaled": 0.000620986187218218,
+    "max_relative": 0.9081807016431623,
+    "finite": true
+  }
+}

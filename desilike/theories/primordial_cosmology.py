@@ -345,10 +345,13 @@ class PrimordialCosmology(Calculator):
         spec_key = (method_key, tuple(sorted(static.items())))
         result = self._results[spec_key]
         spec   = self._requirements[spec_key]
+        axis = 0
         for coord in _COORDS:
             if coord in spec:
                 idx = np.searchsorted(spec[coord], kwargs[coord])
-                result = result[idx]
+                result = result[(slice(None),) * axis + (idx,)]
+                # A scalar coordinate removes its axis; an array preserves it.
+                axis += np.ndim(idx)
         return result
 
     def get_fourier(self):
@@ -609,10 +612,12 @@ class CosmoprimoCosmology(PrimordialCosmology):
 
     Recognised method keys for :meth:`~PrimordialCosmology.add_requirements`:
 
-    * ``'fourier.pk'``                              — kwargs: ``of``, ``z``, ``k``
+    * ``'fourier.pk'``                              — kwargs: ``of``, ``z``, ``k``, optional ``non_linear``, ``extrap_kmin/max`` (h/Mpc),
+      or ``extrap_kmax_physical`` (1/Mpc)
     * ``'fourier.pk_now'``                          — kwargs: ``of``, ``engine``, ``z``, ``k``
     * ``'fourier.sigma8_z'``                        — kwargs: ``of``, ``z``
     * ``'background.efunc'``                        — kwargs: ``z``
+    * ``'background.comoving_radial_distance'``     — kwargs: ``z``
     * ``'background.comoving_transverse_distance'`` — kwargs: ``z``
     * ``'background.luminosity_distance'``          — kwargs: ``z``
     * ``'background.growth_factor'``                — kwargs: ``z``
@@ -845,13 +850,20 @@ class CosmoprimoCosmology(PrimordialCosmology):
     def _run_requirements(self, params):
         """Populate ``self._results`` / ``self.derived_params`` from ``self._cosmo``."""
         cosmo = self._cosmo
+        xnp = np if self._is_external else jnp
         for spec_key, spec in self._requirements.items():
             method_key = spec_key[0]
             static = spec['static']
             _kw_coords = {coord: spec[coord] for coord in _COORDS if coord in spec}
             if method_key == 'fourier.pk':
                 fo = cosmo.get_fourier()
-                result = fo.pk_interpolator(of=static['of'], **_kw_pk)(**_kw_coords).T
+                kw_pk = dict(_kw_pk)
+                kw_pk.update({name: static[name] for name in ('extrap_kmin', 'extrap_kmax') if name in static})
+                if 'extrap_kmax_physical' in static:
+                    kw_pk['extrap_kmax'] = static['extrap_kmax_physical'] / cosmo['h']
+                if static.get('non_linear', False):
+                    kw_pk['non_linear'] = True
+                result = fo.pk_interpolator(of=static['of'], **kw_pk)(**_kw_coords).T
             elif method_key == 'fourier.pk_now':
                 fourier = cosmo.get_fourier()
                 if hasattr(fourier, 'pk_now_interpolator'):
@@ -880,6 +892,8 @@ class CosmoprimoCosmology(PrimordialCosmology):
                 result = fo.sigma8_z(**_kw_coords, of=static['of'])
             elif method_key == 'background.efunc':
                 result = cosmo.get_background().efunc(**_kw_coords)
+            elif method_key == 'background.comoving_radial_distance':
+                result = cosmo.get_background().comoving_radial_distance(**_kw_coords)
             elif method_key == 'background.comoving_transverse_distance':
                 result = cosmo.get_background().comoving_transverse_distance(**_kw_coords)
             elif method_key == 'background.luminosity_distance':
@@ -912,7 +926,7 @@ class CosmoprimoCosmology(PrimordialCosmology):
                 if 'z' in spec:
                     # z-independent; broadcast to the registered z grid so get()'s
                     # per-z searchsorted indexing below still applies cleanly.
-                    result = jnp.full(spec['z'].shape, result)
+                    result = xnp.full(spec['z'].shape, result)
             elif method_key == 'background.age':
                 result = cosmo.get_background().age
             elif method_key.startswith('params.'):
@@ -921,15 +935,15 @@ class CosmoprimoCosmology(PrimordialCosmology):
                 # of a stale read off self._cosmo (see __getitem__).
                 name = method_key[len('params.'):]
                 if name in params:
-                    result = jnp.asarray(params[name])
+                    result = xnp.asarray(params[name])
                 else:
-                    result = jnp.asarray(cosmo[name])
+                    result = xnp.asarray(cosmo[name])
             else:
                 raise ValueError(f'Unknown requirement method key: {method_key!r}')
             self._results[spec_key] = result
         # Here set derived_params
         for param, getter in self._get_derived.items():
-            self.derived_params[param].value = jnp.reshape(self.get(getter[0], **getter[1]), self.derived_params[param].shape)
+            self.derived_params[param].value = xnp.reshape(self.get(getter[0], **getter[1]), self.derived_params[param].shape)
     # tree_flatten/tree_unflatten: inherited as-is from PrimordialCosmology.
     # self._cosmo (the live cosmoprimo.Cosmology) is deliberately *not* exposed as a
     # leaf: it is itself a huge, cache-dependent pytree (its leaf count can change with

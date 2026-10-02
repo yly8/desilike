@@ -1,0 +1,130 @@
+{
+  "versions": {
+    "jax": "0.6.2",
+    "jaxlib": "0.6.2",
+    "interpax": "0.3.15",
+    "equinox": "0.13.8",
+    "numpy": "1.26.4",
+    "scipy": "1.14.0",
+    "camb": "1.5.8"
+  },
+  "platform": "macOS-15.8.1-arm64-arm-64bit",
+  "devices": [
+    "TFRT_CPU_0"
+  ],
+  "preparation": [
+    {
+      "mode": "density",
+      "backend": "NumPy/SciPy",
+      "setup_s": 0.22022324999852572,
+      "first_call_s": 1.5547417499983567
+    },
+    {
+      "mode": "density",
+      "backend": "JAX eager",
+      "setup_s": 3.6599532090003777,
+      "first_call_s": 3.2178748749975057
+    },
+    {
+      "mode": "density",
+      "backend": "JAX JIT",
+      "setup_s": 3.686060334002832,
+      "first_call_s": 4.1374706250026065
+    },
+    {
+      "mode": "weyl",
+      "backend": "NumPy/SciPy",
+      "setup_s": 0.16065808399798698,
+      "first_call_s": 1.4487398749988643
+    },
+    {
+      "mode": "weyl",
+      "backend": "JAX eager",
+      "setup_s": 3.6397015000002284,
+      "first_call_s": 2.988509292001254
+    },
+    {
+      "mode": "weyl",
+      "backend": "JAX JIT",
+      "setup_s": 3.544113959000242,
+      "first_call_s": 4.141392124998674
+    }
+  ],
+  "speed": [
+    {
+      "mode": "density",
+      "scenario": "change_IA_amplitude",
+      "JAX JIT": 0.03189091699823621,
+      "JAX eager": 0.34644487499826937,
+      "NumPy/SciPy": 0.1474830840015784,
+      "NumPy_over_JIT": 4.624610951442232,
+      "eager_over_JIT": 10.86343409370857
+    },
+    {
+      "mode": "density",
+      "scenario": "change_cosmology_h",
+      "JAX JIT": 2.5261707909994584,
+      "JAX eager": 2.8407886670029256,
+      "NumPy/SciPy": 1.3507599580007081,
+      "NumPy_over_JIT": 0.5347065063111949,
+      "eager_over_JIT": 1.1245433907811875
+    },
+    {
+      "mode": "density",
+      "scenario": "change_shear_m1",
+      "JAX JIT": 0.044474582999100676,
+      "JAX eager": 0.1086842090007849,
+      "NumPy/SciPy": 0.15547633299865993,
+      "NumPy_over_JIT": 3.495846897582015,
+      "eager_over_JIT": 2.4437375613613423
+    },
+    {
+      "mode": "density",
+      "scenario": "same_input_cache",
+      "JAX JIT": 0.04420041599951219,
+      "JAX eager": 0.007151166999392444,
+      "NumPy/SciPy": 0.15471162499670754,
+      "NumPy_over_JIT": 3.5002300656721195,
+      "eager_over_JIT": 0.16178958585981107
+    },
+    {
+      "mode": "weyl",
+      "scenario": "change_IA_amplitude",
+      "JAX JIT": 0.04064112500054762,
+      "JAX eager": 0.4060494999976072,
+      "NumPy/SciPy": 0.1844130409990612,
+      "NumPy_over_JIT": 4.537596855317768,
+      "eager_over_JIT": 9.991098917466873
+    },
+    {
+      "mode": "weyl",
+      "scenario": "change_cosmology_h",
+      "JAX JIT": 2.569981666001695,
+      "JAX eager": 2.9212904580017494,
+      "NumPy/SciPy": 1.384438000000955,
+      "NumPy_over_JIT": 0.5386956717690615,
+      "eager_over_JIT": 1.1366970031917039
+    },
+    {
+      "mode": "weyl",
+      "scenario": "change_shear_m1",
+      "JAX JIT": 0.05740166699979454,
+      "JAX eager": 0.10786212500170222,
+      "NumPy/SciPy": 0.19765750000078697,
+      "NumPy_over_JIT": 3.443410450109305,
+      "eager_over_JIT": 1.879076525810449
+    },
+    {
+      "mode": "weyl",
+      "scenario": "same_input_cache",
+      "JAX JIT": 0.05890020899823867,
+      "JAX eager": 0.0104799170003389,
+      "NumPy/SciPy": 0.20128808300069068,
+      "NumPy_over_JIT": 3.4174425935688943,
+      "eager_over_JIT": 0.17792665218984688
+    }
+  ],
+  "max_abs_timed_delta_chi2": 8.713489137335273e-06,
+  "max_JIT_vs_eager_scaled": 3.819373185662718e-15,
+  "interpretation": "Warm timings exclude compilation. CAMB is cached only when cosmology is unchanged. NumPy/JIT speed includes graph caching and implementation differences; eager/JIT compares the same desilike implementation. Same-input rows measure cache overhead, not independent evaluation speed."
+}

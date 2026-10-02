@@ -1,0 +1,96 @@
+{
+  "versions": {
+    "jax": "0.6.2",
+    "jaxlib": "0.6.2",
+    "interpax": "0.3.15",
+    "equinox": "0.13.8",
+    "numpy": "1.26.4",
+    "scipy": "1.14.0",
+    "camb": "1.5.8"
+  },
+  "speed": [
+    {
+      "mode": "density",
+      "scenario": "CAMB_plus_full_WL",
+      "JAX JIT": 2.559453500001837,
+      "JAX eager": 2.8965118329979305,
+      "NumPy/SciPy": 1.3727734169988253,
+      "NumPy_over_JIT": 0.5363541150475444,
+      "eager_over_JIT": 1.1316915243804397
+    },
+    {
+      "mode": "density",
+      "scenario": "fixed_CAMB_full_WL",
+      "JAX JIT": 0.099918208001327,
+      "JAX eager": 0.419444666000345,
+      "NumPy/SciPy": 0.15640875000099186,
+      "NumPy_over_JIT": 1.5653678456574662,
+      "eager_over_JIT": 4.1978801901128415
+    },
+    {
+      "mode": "weyl",
+      "scenario": "CAMB_plus_full_WL",
+      "JAX JIT": 2.574948499997845,
+      "JAX eager": 2.987246000000596,
+      "NumPy/SciPy": 1.3869802080007503,
+      "NumPy_over_JIT": 0.5386438633634464,
+      "eager_over_JIT": 1.160118736356512
+    },
+    {
+      "mode": "weyl",
+      "scenario": "fixed_CAMB_full_WL",
+      "JAX JIT": 0.10910562499702792,
+      "JAX eager": 0.4688740410019818,
+      "NumPy/SciPy": 0.18509474999882514,
+      "NumPy_over_JIT": 1.696473027892624,
+      "eager_over_JIT": 4.297432336918964
+    }
+  ],
+  "preparation": [
+    {
+      "mode": "density",
+      "backend": "NumPy/SciPy",
+      "setup_s": 0.24403470800098148,
+      "first_call_s": 1.5980834170004528,
+      "preparation_total_s": 1.8421181250014342
+    },
+    {
+      "mode": "density",
+      "backend": "JAX eager",
+      "setup_s": 3.5480176670025685,
+      "first_call_s": 2.8407149580016267,
+      "preparation_total_s": 6.388732625004195
+    },
+    {
+      "mode": "density",
+      "backend": "JAX JIT",
+      "setup_s": 3.4618504580030276,
+      "first_call_s": 4.054192542000237,
+      "preparation_total_s": 7.516043000003265
+    },
+    {
+      "mode": "weyl",
+      "backend": "NumPy/SciPy",
+      "setup_s": 0.16097733399874414,
+      "first_call_s": 1.43678600000203,
+      "preparation_total_s": 1.5977633340007742
+    },
+    {
+      "mode": "weyl",
+      "backend": "JAX eager",
+      "setup_s": 3.7158016249995853,
+      "first_call_s": 2.97410520899939,
+      "preparation_total_s": 6.689906833998975
+    },
+    {
+      "mode": "weyl",
+      "backend": "JAX JIT",
+      "setup_s": 3.585176249998767,
+      "first_call_s": 4.045944083001814,
+      "preparation_total_s": 7.631120333000581
+    }
+  ],
+  "n_observable_values": 640,
+  "max_abs_delta_chi2": 8.713489364708948e-06,
+  "max_observable_scaled": 6.017267827388343e-10
+}
