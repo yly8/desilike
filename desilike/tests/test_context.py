@@ -165,13 +165,11 @@ def test_override():
     assert x.prior is old_prior and y.ref is old_ref and x.value == old_value
     assert np.isfinite(float(posterior({'x': 0.2, 'y': MU_Y})))
     assert current_constraints() is None
-    with pytest.raises(ValueError, match='unknown parameters'):
-        with override(posterior, value={'nope': 1.}):
-            pass
+    with pytest.raises(ValueError, match='unknown parameters'), override(posterior, value={'nope': 1.}):
+        pass
     # restored on error too
-    with pytest.raises(RuntimeError):
-        with override(posterior, prior={'x': {'limits': [0., 0.15]}}):
-            raise RuntimeError
+    with pytest.raises(RuntimeError), override(posterior, prior={'x': {'limits': [0., 0.15]}}):
+        raise RuntimeError
     assert x.prior is old_prior
 
 

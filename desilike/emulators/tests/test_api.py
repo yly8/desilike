@@ -92,7 +92,7 @@ def test_deployed_emulator_reports_its_box_as_a_constraint():
     listed = get_params(graph, filter='constraint')
     assert sorted(param.basename for param in listed) == ['box']   # a bounds-only space: the nodes fill the box
     assert all(param.namespace.startswith('emulator_Toy_') for param in listed)
-    name = [param.name for param in listed if param.basename == 'box'][0]
+    name = next(param.name for param in listed if param.basename == 'box')
 
     inside = {'h': 0.72, 'amplitude': 1.3}
     graph(inside)

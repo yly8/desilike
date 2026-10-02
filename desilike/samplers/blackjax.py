@@ -570,7 +570,7 @@ class BlackjaxLAPS(Kernel):
         # Phase 1: unadjusted MCLMC, early-stopped on the ensemble fluctuations.
         adaptation = laps_burn_in.Adaptation(
             self._ndim, microcanonical=True, alpha=self.alpha, bias_type=self.bias_type,
-            save_num=int(round(self.save_frac * num_steps1)), C=self.C, r_end=self.r_end)
+            save_num=round(self.save_frac * num_steps1), C=self.C, r_end=self.r_end)
         integrator_state, adapted, info1 = run_eca(
             jax.random.PRNGKey(int(self._rng.integers(2**32))), integrator_state,
             laps_burn_in.build_kernel(self._logdensity, self._ndim, microcanonical=True),

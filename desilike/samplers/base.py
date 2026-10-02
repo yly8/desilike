@@ -720,7 +720,7 @@ class BaseSampler(ABC):
         *samples* is in the sampler's rescaled working space; it is mapped back to
         original parameter values via :meth:`AffineConditioner.forward` before being stored.
         """
-        if not self.conditioner.is_linear and kwargs.get('logposterior', None) is not None:
+        if not self.conditioner.is_linear and kwargs.get('logposterior') is not None:
             # kernels report the conditioned-space density; chains store the posterior in the
             # original parameters, so the transforms' log|dx/dz| comes back out
             kwargs['logposterior'] = np.asarray(kwargs['logposterior']) - np.asarray(self.conditioner.log_abs_det_jacobian(np.asarray(samples)))

@@ -27,6 +27,9 @@ dependencies = [
 weak-lensing = ["camb", "getdist", "astropy", "jax>=0.6.2", "interpax>=0.3.15", "equinox>=0.13.8"]
 tests = [
     "matplotlib",
+    "tabulate",
+    "getdist",
+    "astropy",
     "emcee",
     "pyclass @ git+https://github.com/adematti/pyclass",
     "folps @ git+https://github.com/cosmodesi/FolpsD",

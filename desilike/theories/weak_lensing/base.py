@@ -10,6 +10,14 @@ from cosmoprimo import constants as const
 trapz = getattr(np, 'trapezoid', None) or np.trapz
 
 
+def _legendre_values_and_derivatives(degree, coordinate):
+    """Return P_0..P_degree and their derivatives across SciPy versions."""
+    if hasattr(special, 'legendre_p_all'):
+        return special.legendre_p_all(int(degree), coordinate, diff_n=1)
+    # SciPy < 1.15; lpn was removed in 1.17.
+    return special.lpn(int(degree), coordinate)
+
+
 def Pl_rec_binav(ells, cost_min, cost_max):
     """Calculate average Pl"""
     Pl_binav = np.zeros(len(ells))
@@ -19,8 +27,8 @@ def Pl_rec_binav(ells, cost_min, cost_max):
     coeff = 1./(2.*ell+1.)
     # computation of legendre polynomials
     # --- this computes all polynomials of order 0 to ell_max+1 and for all ell's
-    lpns_min = special.lpn(ell[-1]+1, cost_min)[0]
-    lpns_max = special.lpn(ell[-1]+1, cost_max)[0]
+    lpns_min = _legendre_values_and_derivatives(ell[-1]+1, cost_min)[0]
+    lpns_max = _legendre_values_and_derivatives(ell[-1]+1, cost_max)[0]
     # terms in the numerator of average Pl
     term_lm1 = lpns_max[:-2] - lpns_min[:-2]
     term_lp1 = lpns_max[2:] - lpns_min[2:]
@@ -57,8 +65,8 @@ def P2l_rec_binav(ells, cost_min, cost_max):
     coeff_l   = 2.-ell
     # computation of legendre polynomials
     # --- this computes all polynomials of order 0 to ell_max+1 and for all ell's
-    lpns_min = special.lpn(ell[-1]+1, cost_min)[0][1:]
-    lpns_max = special.lpn(ell[-1]+1, cost_max)[0][1:]
+    lpns_min = _legendre_values_and_derivatives(ell[-1]+1, cost_min)[0][1:]
+    lpns_max = _legendre_values_and_derivatives(ell[-1]+1, cost_max)[0][1:]
     # terms in the numerator of average P2l
     term_lm1 = coeff_lm1 * (lpns_max[:-2]-lpns_min[:-2])
     term_lp1 = coeff_lp1 * (lpns_max[2:]-lpns_min[2:])
@@ -108,10 +116,10 @@ def Gp_plus_minus_Gm_binav(ells, cost_min, cost_max):
 
     # computation of legendre polynomials
     #---this computes all polynomials of order 0 to ell_max+1 and for all ell's
-    lpns_min  = special.lpn(ell[-1]+1, cost_min)[0][1:]
-    lpns_max  = special.lpn(ell[-1]+1, cost_max)[0][1:]
-    dlpns_min = special.lpn(ell[-1]+1, cost_min)[1][1:]
-    dlpns_max = special.lpn(ell[-1]+1, cost_max)[1][1:]
+    lpns_min  = _legendre_values_and_derivatives(ell[-1]+1, cost_min)[0][1:]
+    lpns_max  = _legendre_values_and_derivatives(ell[-1]+1, cost_max)[0][1:]
+    dlpns_min = _legendre_values_and_derivatives(ell[-1]+1, cost_min)[1][1:]
+    dlpns_max = _legendre_values_and_derivatives(ell[-1]+1, cost_max)[1][1:]
 
     # denominator in average
     dcost = cost_max-cost_min
@@ -215,3 +223,5 @@ def get_fourier(fourier, acc=1, l_max=40000, data_dir=None):
         Gm_l = apply_filter(l_max, high_l_filter, Gm_l)
         legendre_cache = P_l.T, P_l_2.T, Gp_l.T, Gm_l.T
         return ls_legender, legendre_cache
+
+    raise ValueError(f'Unknown angular transform: {fourier}')

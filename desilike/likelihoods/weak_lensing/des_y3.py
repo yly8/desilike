@@ -59,7 +59,7 @@ class BaseDESY3Likelihood(GaussianLikelihood):
         self.used_types = ini.list('used_data_types', self.data_types)
         with open(ini.relativeFileName('data_selection'), encoding="utf-8") as f:
             header = f.readline()
-            assert ('#  type bin1 bin2 theta_min theta_max' == header.strip())
+            assert (header.strip() == '#  type bin1 bin2 theta_min theta_max')
             lines = f.readlines()
         ranges = {}
         for tp in self.data_types:
@@ -78,7 +78,7 @@ class BaseDESY3Likelihood(GaussianLikelihood):
         self.data_arrays = []
         self.thetas = []
         for i, tp in enumerate(self.data_types):
-            xi = np.loadtxt(ini.relativeFileName('measurements[%s]' % tp))
+            xi = np.loadtxt(ini.relativeFileName(f'measurements[{tp}]'))
             bin1 = xi[:, 0].astype(int) - 1
             bin2 = xi[:, 1].astype(int) - 1
             tbin = xi[:, 2].astype(int) - 1
@@ -130,16 +130,16 @@ class BaseDESY3Likelihood(GaussianLikelihood):
             # Generate scale masks for each bin pair.
             # These are used in the calculation of each ratio from the range of points
             self.sr_masks = {}
-            for sc in range(0, self.sr_nratios_per_lens):
-                for l in range(0, self.sr_nbin_lens):
+            for sc in range(self.sr_nratios_per_lens):
+                for l in range(self.sr_nbin_lens):
                     t_min = sr_theta_min[sc][l]
                     t_max = sr_theta_max[l]
                     self.sr_masks[(sc, l)] = (sr_theta > t_min) & (sr_theta <= t_max)
 
             self.inv_cov_individual_ratios = {}
             sr_n = 0
-            for l in range(0, self.sr_nbin_lens):
-                for sc in range(0, self.sr_nratios_per_lens):
+            for l in range(self.sr_nbin_lens):
+                for sc in range(self.sr_nratios_per_lens):
                     mask = self.sr_masks[sc, l]
                     srP = ind_cov_data[sr_n][mask][:, mask]
                     self.inv_cov_individual_ratios[sc, l] = srP
@@ -149,10 +149,8 @@ class BaseDESY3Likelihood(GaussianLikelihood):
         self.covmat = self.fullcov[np.ix_(self.used_indices, self.used_indices)]
         self.covinv_orig = np.linalg.inv(self.covmat)
         self.errors = copy.deepcopy(self.data_arrays)
-        cov_ix = 0
-        for i, (type_ix, f1, f2, ix) in enumerate(self.indices):
+        for cov_ix, (type_ix, f1, f2, ix) in enumerate(self.indices):
             self.errors[type_ix][f1, f2][ix] = np.sqrt(self.fullcov[cov_ix, cov_ix])
-            cov_ix += 1
         self.theta_bins_radians = self.theta_bins / 60 * np.pi / 180
         self.theta_edges_radians = self.theta_edges / 60 * np.pi / 180
 

@@ -1244,7 +1244,7 @@ def _parse_linear_constraint(text):
     names = []
     for token in match.group(1).split('+'):
         normalized = token.strip().replace(' ', '').lower()
-        name = _CONVERSION_CAPSE.get(normalized, None)
+        name = _CONVERSION_CAPSE.get(normalized)
         if name is None:
             return None
         names.append(name)

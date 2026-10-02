@@ -130,3 +130,21 @@ def test_data_directory_expands_user_and_reports_missing(tmp_path):
     assert resolve_data_dir('~') == Path.home().resolve()
     with pytest.raises(FileNotFoundError, match='DES data directory does not exist'):
         resolve_data_dir(tmp_path / 'missing')
+
+
+def test_legendre_values_and_derivatives_across_scipy_versions(monkeypatch):
+    from scipy import special
+    from numpy.polynomial.legendre import Legendre
+    from desilike.theories.weak_lensing.base import _legendre_values_and_derivatives
+
+    degree = 12
+    coordinate = np.array([-1., -.3, .7, .999, 1.])
+    expected = np.array([
+        [Legendre.basis(order)(coordinate) for order in range(degree + 1)],
+        [Legendre.basis(order).deriv()(coordinate) for order in range(degree + 1)],
+    ])
+    if hasattr(special, 'legendre_p_all'):
+        # Exercise the modern path even if the deprecated name also exists.
+        monkeypatch.delattr(special, 'lpn', raising=False)
+    actual = np.asarray(_legendre_values_and_derivatives(degree, coordinate))
+    np.testing.assert_allclose(actual, expected, rtol=1e-12, atol=1e-12)

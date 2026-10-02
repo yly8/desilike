@@ -23,6 +23,7 @@ jax.config.update('jax_enable_x64', True)
 from desilike import build
 from desilike.emulators import Emulator, Space
 from desilike.base import replace
+from desilike.parameter import Constraint
 
 
 _FID = ('DESI', {'engine': 'camb'})
@@ -105,7 +106,9 @@ def _check(pipe_exact, pipe_emu, shift_param, reldiff_tol=0.10):
     # Each pipeline gets the parameters it actually has. A parameter the emulator's space left
     # out is frozen at its trained value, so the emulated pipeline exposes fewer than the exact
     # one -- and it refuses a name it does not have rather than silently ignoring it.
-    emu_names = set(pipe_emu.params.names())
+    # Emulator validity constraints are derived outputs, never sampling inputs.
+    # Exclude only Constraint nodes so an unexpected new physical parameter still fails.
+    emu_names = {param.name for param in pipe_emu.params if not isinstance(param, Constraint)}
     assert emu_names <= set(center), f'emulated pipeline gained parameters: {sorted(emu_names - set(center))}'
     emu_center = {name: value for name, value in center.items() if name in emu_names}
     exact_center_value = np.asarray(pipe_exact(center))
