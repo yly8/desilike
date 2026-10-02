@@ -11,12 +11,13 @@
     "camb": "1.5.8"
   },
   "reference_sha256": "d997f6a7d49ac677fd8b687e362e18e0e241c56f807f31002a7836659a9efeeb",
-  "max_power_scaled": 9.192365799681512e-08,
+  "max_power_scaled": 9.192365799681513e-08,
   "max_Cl_scaled": 3.228560886994135e-08,
-  "max_xi_scaled": 1.15590882186384e-09,
-  "max_abs_delta_chi2": 7.634076268914214e-06,
-  "max_model_delta_chi2": 1.1416078490570488e-12,
+  "max_xi_scaled": 1.1559083877966316e-09,
+  "max_abs_delta_chi2": 7.634053076799319e-06,
+  "max_model_delta_chi2": 1.14160783462377e-12,
   "max_weyl_switch_residual": 1.7595640808038355e-08,
-  "jit_loglike_difference": 1.7053025658242404e-12,
-  "tests_passed": true
+  "jit_loglike_difference": 1.1368683772161603e-12,
+  "tests_passed": true,
+  "nonlimber_implementation": "native JAX; no NumPy backend"
 }

@@ -7,7 +7,6 @@ import jax.numpy as jnp
 from desilike import build
 from desilike.theories.primordial_cosmology import PrimordialCosmology
 from desilike.theories.weak_lensing import DESWeakLensing3x2pt
-from desilike.theories.weak_lensing.base import interp1d
 
 
 def test_cubic_matches_reference_scipy():
@@ -16,9 +15,6 @@ def test_cubic_matches_reference_scipy():
     x = np.array([0., .2, .7, 1., 2.])
     y = np.stack([np.sin(x), np.cos(x)], axis=-1)
     query = np.linspace(-.1, 2.1, 31)
-    np.testing.assert_allclose(interp1d(query, x, y),
-                               CubicSpline(x, y, axis=0)(query),
-                               atol=1e-14, equal_nan=True)
     np.testing.assert_allclose(spline(query, x, y), CubicSpline(x, y, axis=0)(query), atol=1e-14)
     np.testing.assert_allclose(jax.jit(lambda values: spline(query, x, values))(y),
                                CubicSpline(x, y, axis=0)(query), atol=1e-14)

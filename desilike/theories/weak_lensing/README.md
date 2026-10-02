@@ -68,10 +68,22 @@ installation/configuration; it is not needed for the native DES calculation.
 
 The NLA redshift kernels, not-a-knot cubic interpolation, Limber integrands,
 angular projection, and likelihood (including point-mass marginalization and
-shear ratios) use native JAX operations. CAMB and the non-Limber FFTLog node
-remain external. The latter preserves the reference's cosmology-dependent
-integer grid lengths; desilike supplies parameter finite differences across
-external nodes. Shear calibration, for example, has a native autodiff path.
+shear ratios) use native JAX operations, including non-Limber FFTLog. There is
+one numerical implementation; call the built pipeline directly for JAX eager,
+or wrap it with `jax.jit` for compiled execution. The former NumPy/SciPy
+non-Limber backend and `nonlimber_backend` option have been removed.
+NumPy/SciPy are still used for file loading and parameter-independent setup
+(e.g. fixed angular-transform tables); CAMB remains an external provider.
+
+The native path uses Bluestein convolution to evaluate variable-length DFTs in
+fixed-capacity workspaces. Active integer grid lengths, extrapolation, padding,
+RSD Mellin kernels and cubic integration follow the reference at every point;
+the grid is not frozen at a fiducial cosmology. Workspace sizes are chosen from
+the input redshift grid with headroom; exceeding capacity returns NaN rather
+than silently truncating the physical grid. Gradients are piecewise within an
+integer-grid region; grid transitions themselves are not differentiable.
+CAMB remains external and uses parameter finite differences. Nuisance parameters
+through the native non-Limber node now have a native autodiff path.
 Unused bin pairs are zero-filled.
 
 The numerical conventions follow the local reference DES Y3 implementation:
@@ -98,7 +110,7 @@ saved under `diagnostics/weak_lensing_consistency/`.
 Run the targeted regression tests with:
 
 ```sh
-python -m pytest -q desilike/theories/weak_lensing/tests/test_migration.py
+python -m pytest -q desilike/theories/weak_lensing/tests
 ```
 
 These cover the reference cubic interpolation, two-dimensional cosmology indexing,
@@ -106,3 +118,10 @@ both transforms, parameter sensitivity, JIT, finite-difference gradients,
 point-mass correction and shear ratios. An additional CAMB integration check
 uses the bundled DES Y3 data with NLA/non-Limber/shear ratios and checks the
 JIT response to a change in `omega_cdm`.
+
+## Notebooks
+
+- Validation and timing: [English](../../../desilike_test_en.ipynb) / [中文](../../../desilike_test.ipynb).
+- Usage tutorial: [English](../../../desilike_weak_lensing_tutorial_en.ipynb) / [中文](../../../desilike_weak_lensing_tutorial.ipynb).
+
+The English editions retain the numerical code and saved outputs of their Chinese counterparts. The validation notebook requires the external DES reference; the tutorial uses bundled data only.

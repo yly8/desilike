@@ -12,85 +12,85 @@
     {
       "mode": "density",
       "scenario": "CAMB_plus_full_WL",
-      "JAX JIT": 2.559453500001837,
-      "JAX eager": 2.8965118329979305,
-      "NumPy/SciPy": 1.3727734169988253,
-      "NumPy_over_JIT": 0.5363541150475444,
-      "eager_over_JIT": 1.1316915243804397
+      "JAX JIT": 2.4918093749993204,
+      "JAX eager": 3.0662692909991165,
+      "NumPy/SciPy": 1.3591863339997872,
+      "NumPy_over_JIT": 0.5454616021741863,
+      "eager_over_JIT": 1.2305392706855647
     },
     {
       "mode": "density",
       "scenario": "fixed_CAMB_full_WL",
-      "JAX JIT": 0.099918208001327,
-      "JAX eager": 0.419444666000345,
-      "NumPy/SciPy": 0.15640875000099186,
-      "NumPy_over_JIT": 1.5653678456574662,
-      "eager_over_JIT": 4.1978801901128415
+      "JAX JIT": 0.06636087500010035,
+      "JAX eager": 0.6112398329996722,
+      "NumPy/SciPy": 0.1538486669996928,
+      "NumPy_over_JIT": 2.318364051098786,
+      "eager_over_JIT": 9.210846496504875
     },
     {
       "mode": "weyl",
       "scenario": "CAMB_plus_full_WL",
-      "JAX JIT": 2.574948499997845,
-      "JAX eager": 2.987246000000596,
-      "NumPy/SciPy": 1.3869802080007503,
-      "NumPy_over_JIT": 0.5386438633634464,
-      "eager_over_JIT": 1.160118736356512
+      "JAX JIT": 2.661557041999913,
+      "JAX eager": 3.1644040410001253,
+      "NumPy/SciPy": 1.415570375000243,
+      "NumPy_over_JIT": 0.5318579886368219,
+      "eager_over_JIT": 1.1889296344452454
     },
     {
       "mode": "weyl",
       "scenario": "fixed_CAMB_full_WL",
-      "JAX JIT": 0.10910562499702792,
-      "JAX eager": 0.4688740410019818,
-      "NumPy/SciPy": 0.18509474999882514,
-      "NumPy_over_JIT": 1.696473027892624,
-      "eager_over_JIT": 4.297432336918964
+      "JAX JIT": 0.07269354200070666,
+      "JAX eager": 0.6506534580003063,
+      "NumPy/SciPy": 0.1810574170003747,
+      "NumPy_over_JIT": 2.4906946616883054,
+      "eager_over_JIT": 8.950636330170584
     }
   ],
   "preparation": [
     {
       "mode": "density",
       "backend": "NumPy/SciPy",
-      "setup_s": 0.24403470800098148,
-      "first_call_s": 1.5980834170004528,
-      "preparation_total_s": 1.8421181250014342
+      "setup_s": 0.21650754199981748,
+      "first_call_s": 1.5046490419999827,
+      "preparation_total_s": 1.7211565839998002
     },
     {
       "mode": "density",
       "backend": "JAX eager",
-      "setup_s": 3.5480176670025685,
-      "first_call_s": 2.8407149580016267,
-      "preparation_total_s": 6.388732625004195
+      "setup_s": 4.017183916999784,
+      "first_call_s": 3.2089756670002316,
+      "preparation_total_s": 7.2261595840000155
     },
     {
       "mode": "density",
       "backend": "JAX JIT",
-      "setup_s": 3.4618504580030276,
-      "first_call_s": 4.054192542000237,
-      "preparation_total_s": 7.516043000003265
+      "setup_s": 3.690209583000069,
+      "first_call_s": 8.41333158299949,
+      "preparation_total_s": 12.103541165999559
     },
     {
       "mode": "weyl",
       "backend": "NumPy/SciPy",
-      "setup_s": 0.16097733399874414,
-      "first_call_s": 1.43678600000203,
-      "preparation_total_s": 1.5977633340007742
+      "setup_s": 0.16458170799978689,
+      "first_call_s": 1.4041527500003212,
+      "preparation_total_s": 1.5687344580001081
     },
     {
       "mode": "weyl",
       "backend": "JAX eager",
-      "setup_s": 3.7158016249995853,
-      "first_call_s": 2.97410520899939,
-      "preparation_total_s": 6.689906833998975
+      "setup_s": 3.8267845000000307,
+      "first_call_s": 3.263665540999682,
+      "preparation_total_s": 7.090450040999713
     },
     {
       "mode": "weyl",
       "backend": "JAX JIT",
-      "setup_s": 3.585176249998767,
-      "first_call_s": 4.045944083001814,
-      "preparation_total_s": 7.631120333000581
+      "setup_s": 3.7932083329997113,
+      "first_call_s": 7.535926833000303,
+      "preparation_total_s": 11.329135166000015
     }
   ],
   "n_observable_values": 640,
-  "max_abs_delta_chi2": 8.713489364708948e-06,
-  "max_observable_scaled": 6.017267827388343e-10
+  "max_abs_delta_chi2": 8.713474471733207e-06,
+  "max_observable_scaled": 6.017255280415497e-10
 }

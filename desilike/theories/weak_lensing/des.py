@@ -1,15 +1,14 @@
-"""NLA DES 3x2pt: native JAX projection with a separate reference FFTLog node."""
+"""NLA DES 3x2pt: native JAX kernels, FFTLog and angular projection."""
 from pathlib import Path
 import numpy as np
 import yaml
 import jax
 import jax.numpy as jnp
-from scipy.interpolate import InterpolatedUnivariateSpline
 
 from desilike.base import Calculator
 from desilike.parameter import Parameter, VariableCollection
 from desilike.theories.primordial_cosmology import CosmoprimoCosmology
-from .base import get_fourier, nonLimber, trapz
+from .base import get_fourier, trapz
 from .data import resolve_data_dir
 
 
@@ -219,7 +218,7 @@ class DESLensingKernels(_ArrayOutputs):
 
 
 class _NonLimberInputs(_ArrayOutputs):
-    """Transfer only FFTLog inputs across the host callback boundary."""
+    """FFTLog input arrays shared with the lensing kernels."""
     _outputs = ('h', 'chis', 'growth', 'growth_rate', 'pk_linear0', 'qgal')
 
     def __init__(self, kernels):
@@ -232,37 +231,30 @@ class _NonLimberInputs(_ArrayOutputs):
 
 
 class DESNonLimber(_ArrayOutputs):
-    """Reference SciPy/FFTLog, with cosmology-dependent integer grid sizes.
-
-    Kept as an external node to preserve the reference discretization exactly.
-    desilike supplies parameter finite-difference derivatives across this node.
-    """
-    _is_external = True
+    """Native JAX FFTLog with variable-length grids in fixed-capacity buffers."""
     _outputs = ('cl',)
 
     def __init__(self, kernels, biases):
         self.inputs, self.biases = _NonLimberInputs(kernels), biases
 
     def __post_init__(self, *args, **kwargs):
+        from .nonlimber import make_plan
         self.k = self.inputs.kernels.k
         self.std_z = self.inputs.kernels.std_z
         self.ells = self.inputs.kernels.ls_cl[self.inputs.kernels.ls_cl < 200]
+        self.plans = [make_plan(np.asarray(self.inputs.kernels.z), sigma) for sigma in self.std_z]
 
     def __call__(self):
-        kernels = self.inputs
-        chis, growth, rates = [np.asarray(getattr(kernels, name)) for name in ('chis', 'growth', 'growth_rate')]
-        logpk = InterpolatedUnivariateSpline(np.log(self.k), np.log(np.asarray(kernels.pk_linear0)))
-        pk0 = lambda k: np.exp(logpk(np.log(k)))
-        rate_spline = InterpolatedUnivariateSpline(chis, rates)
-        self.cl = np.stack([nonLimber(self.ells, np.asarray(q), np.asarray(q), chis, growth,
-                                     pk0, float(kernels.h), sigma, rate_spline,
-                                     float(bias.value), float(bias.value))
-                            for q, sigma, bias in zip(np.asarray(kernels.qgal), self.std_z, self.biases)])
+        from .nonlimber import nonlimber_auto
+        k = self.inputs
+        self.cl = jnp.stack([nonlimber_auto(self.ells, k.qgal[i], k.chis, k.growth,
+                              k.growth_rate, self.k, k.pk_linear0, k.h, bias.value, plan)
+                             for i, (bias, plan) in enumerate(zip(self.biases, self.plans))])
         return self
 
 
 class DESWeakLensing3x2pt(_ArrayOutputs):
-    """NLA DES theory. Kernels and projections are native JAX; FFTLog is external."""
+    """NLA DES theory. Kernels, projections and FFTLog use native JAX."""
     _outputs = ('xip', 'xim', 'gammat', 'wtheta', 'ell', 'cl_xip', 'cl_xim',
                 'cl_gammat', 'cl_wtheta', 'chis', 'Hs', 'nz_lens', 'nz_source')
 

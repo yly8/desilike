@@ -16,115 +16,115 @@
     {
       "mode": "density",
       "backend": "NumPy/SciPy",
-      "setup_s": 0.22022324999852572,
-      "first_call_s": 1.5547417499983567
+      "setup_s": 0.24306879100004153,
+      "first_call_s": 1.4759824579996348
     },
     {
       "mode": "density",
       "backend": "JAX eager",
-      "setup_s": 3.6599532090003777,
-      "first_call_s": 3.2178748749975057
+      "setup_s": 3.586406540999633,
+      "first_call_s": 3.502667000000656
     },
     {
       "mode": "density",
       "backend": "JAX JIT",
-      "setup_s": 3.686060334002832,
-      "first_call_s": 4.1374706250026065
+      "setup_s": 3.6145865409998805,
+      "first_call_s": 7.223301916999844
     },
     {
       "mode": "weyl",
       "backend": "NumPy/SciPy",
-      "setup_s": 0.16065808399798698,
-      "first_call_s": 1.4487398749988643
+      "setup_s": 0.2192602920003992,
+      "first_call_s": 1.5656929999995555
     },
     {
       "mode": "weyl",
       "backend": "JAX eager",
-      "setup_s": 3.6397015000002284,
-      "first_call_s": 2.988509292001254
+      "setup_s": 3.889100999999755,
+      "first_call_s": 3.243763874999786
     },
     {
       "mode": "weyl",
       "backend": "JAX JIT",
-      "setup_s": 3.544113959000242,
-      "first_call_s": 4.141392124998674
+      "setup_s": 3.8330767500001457,
+      "first_call_s": 9.184327334000045
     }
   ],
   "speed": [
     {
       "mode": "density",
       "scenario": "change_IA_amplitude",
-      "JAX JIT": 0.03189091699823621,
-      "JAX eager": 0.34644487499826937,
-      "NumPy/SciPy": 0.1474830840015784,
-      "NumPy_over_JIT": 4.624610951442232,
-      "eager_over_JIT": 10.86343409370857
+      "JAX JIT": 0.06660366600044654,
+      "JAX eager": 0.5714169170005334,
+      "NumPy/SciPy": 0.14366283400067914,
+      "NumPy_over_JIT": 2.1569808784957267,
+      "eager_over_JIT": 8.57936133720781
     },
     {
       "mode": "density",
       "scenario": "change_cosmology_h",
-      "JAX JIT": 2.5261707909994584,
-      "JAX eager": 2.8407886670029256,
-      "NumPy/SciPy": 1.3507599580007081,
-      "NumPy_over_JIT": 0.5347065063111949,
-      "eager_over_JIT": 1.1245433907811875
+      "JAX JIT": 2.607790957999896,
+      "JAX eager": 3.4780226249995394,
+      "NumPy/SciPy": 1.5499035840002762,
+      "NumPy_over_JIT": 0.5943358225265915,
+      "eager_over_JIT": 1.3337045342265805
     },
     {
       "mode": "density",
       "scenario": "change_shear_m1",
-      "JAX JIT": 0.044474582999100676,
-      "JAX eager": 0.1086842090007849,
-      "NumPy/SciPy": 0.15547633299865993,
-      "NumPy_over_JIT": 3.495846897582015,
-      "eager_over_JIT": 2.4437375613613423
+      "JAX JIT": 0.09351487500043731,
+      "JAX eager": 0.10587562500040804,
+      "NumPy/SciPy": 0.1557425829996646,
+      "NumPy_over_JIT": 1.6654311199040397,
+      "eager_over_JIT": 1.1321795062006224
     },
     {
       "mode": "density",
       "scenario": "same_input_cache",
-      "JAX JIT": 0.04420041599951219,
-      "JAX eager": 0.007151166999392444,
-      "NumPy/SciPy": 0.15471162499670754,
-      "NumPy_over_JIT": 3.5002300656721195,
-      "eager_over_JIT": 0.16178958585981107
+      "JAX JIT": 0.09750270800032013,
+      "JAX eager": 0.0064278749996447004,
+      "NumPy/SciPy": 0.1598892079991856,
+      "NumPy_over_JIT": 1.6398437671973238,
+      "eager_over_JIT": 0.06592509204589063
     },
     {
       "mode": "weyl",
       "scenario": "change_IA_amplitude",
-      "JAX JIT": 0.04064112500054762,
-      "JAX eager": 0.4060494999976072,
-      "NumPy/SciPy": 0.1844130409990612,
-      "NumPy_over_JIT": 4.537596855317768,
-      "eager_over_JIT": 9.991098917466873
+      "JAX JIT": 0.07592391700018197,
+      "JAX eager": 0.6698490420003509,
+      "NumPy/SciPy": 0.1945212079999692,
+      "NumPy_over_JIT": 2.562054431405363,
+      "eager_over_JIT": 8.82263545489553
     },
     {
       "mode": "weyl",
       "scenario": "change_cosmology_h",
-      "JAX JIT": 2.569981666001695,
-      "JAX eager": 2.9212904580017494,
-      "NumPy/SciPy": 1.384438000000955,
-      "NumPy_over_JIT": 0.5386956717690615,
-      "eager_over_JIT": 1.1366970031917039
+      "JAX JIT": 2.6203372080008194,
+      "JAX eager": 3.4187108330006595,
+      "NumPy/SciPy": 1.4354187079998155,
+      "NumPy_over_JIT": 0.5477992311893953,
+      "eager_over_JIT": 1.3046835432333372
     },
     {
       "mode": "weyl",
       "scenario": "change_shear_m1",
-      "JAX JIT": 0.05740166699979454,
-      "JAX eager": 0.10786212500170222,
-      "NumPy/SciPy": 0.19765750000078697,
-      "NumPy_over_JIT": 3.443410450109305,
-      "eager_over_JIT": 1.879076525810449
+      "JAX JIT": 0.11020279199965444,
+      "JAX eager": 0.10635974999968312,
+      "NumPy/SciPy": 0.19982537499981845,
+      "NumPy_over_JIT": 1.813251473705358,
+      "eager_over_JIT": 0.9651275441371452
     },
     {
       "mode": "weyl",
       "scenario": "same_input_cache",
-      "JAX JIT": 0.05890020899823867,
-      "JAX eager": 0.0104799170003389,
-      "NumPy/SciPy": 0.20128808300069068,
-      "NumPy_over_JIT": 3.4174425935688943,
-      "eager_over_JIT": 0.17792665218984688
+      "JAX JIT": 0.11099987499983399,
+      "JAX eager": 0.00992966699959652,
+      "NumPy/SciPy": 0.19790062499941996,
+      "NumPy_over_JIT": 1.7828905212705504,
+      "eager_over_JIT": 0.08945656019532788
     }
   ],
-  "max_abs_timed_delta_chi2": 8.713489137335273e-06,
-  "max_JIT_vs_eager_scaled": 3.819373185662718e-15,
+  "max_abs_timed_delta_chi2": 8.713474244359531e-06,
+  "max_JIT_vs_eager_scaled": 5.040533319854232e-15,
   "interpretation": "Warm timings exclude compilation. CAMB is cached only when cosmology is unchanged. NumPy/JIT speed includes graph caching and implementation differences; eager/JIT compares the same desilike implementation. Same-input rows measure cache overhead, not independent evaluation speed."
 }
