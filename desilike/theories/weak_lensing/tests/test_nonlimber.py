@@ -6,8 +6,23 @@ from scipy.interpolate import CubicSpline
 from scipy.special import loggamma
 
 from desilike.theories.weak_lensing.nonlimber import (
-    variable_fft, complex_loggamma, uniform_spline_integral, make_plan, nonlimber_auto,
+    _radix2_fft, variable_fft, complex_loggamma, uniform_spline_integral, make_plan, nonlimber_auto,
 )
+
+
+def test_batched_radix2_fft_and_gradient():
+    rng = np.random.default_rng(12)
+    for length in (1, 16, 1024):
+        values = rng.normal(size=(3, length)) + 1j * rng.normal(size=(3, length))
+        forward = jax.jit(jax.vmap(_radix2_fft))
+        inverse = jax.jit(lambda array: _radix2_fft(array, inverse=True))
+        np.testing.assert_allclose(forward(values), np.fft.fft(values), rtol=2e-12, atol=2e-12)
+        np.testing.assert_allclose(inverse(values), np.fft.ifft(values), rtol=2e-12, atol=2e-12)
+        np.testing.assert_allclose(inverse(forward(values)), values, rtol=2e-12, atol=2e-12)
+    # Parseval gives an independent reverse-mode derivative for complex FFTs.
+    real = jnp.asarray(values.real)
+    gradient = jax.jit(jax.grad(lambda array: jnp.sum(jnp.abs(_radix2_fft(array))**2)))(real)
+    np.testing.assert_allclose(gradient, 2 * length * real, rtol=2e-12, atol=2e-10)
 
 
 def test_variable_fft_and_spline_integral():

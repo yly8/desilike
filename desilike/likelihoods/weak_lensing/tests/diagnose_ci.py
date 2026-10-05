@@ -63,6 +63,13 @@ def integration_probe():
         report(f'COMPLETE: {shifted}')
         assert np.isfinite(reference) and np.isfinite(shifted)
         assert not np.isclose(reference, shifted)
+        np.testing.assert_allclose(shifted, float(pipe(parameters)), rtol=1e-10, atol=1e-8)
+        report('SAMPLER BATCH: jit(vmap) with two changing cosmologies')
+        densities = np.array([.119, .121])
+        batched = jax.jit(jax.vmap(lambda density: pipe({'omega_cdm': density})))(densities)
+        expected = [float(pipe({'omega_cdm': density})) for density in densities]
+        np.testing.assert_allclose(batched, expected, rtol=1e-10, atol=1e-8)
+        report(f'SAMPLER BATCH complete: {np.asarray(batched)}')
     finally:
         faulthandler.cancel_dump_traceback_later()
         CosmoprimoCosmology.__call__ = original

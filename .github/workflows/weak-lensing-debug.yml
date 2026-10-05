@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mode: [isolated-xla]
+        mode: [isolated]
         repetition: [1, 2]
         python: ['3.12', '3.14']
     env:
@@ -43,6 +43,8 @@ jobs:
           python -m pip install .[tests]
       - name: Probe JIT stages and callbacks
         run: |
+          # This matrix validates the code fix with native XLA threading enabled.
+          unset XLA_FLAGS
           if [ "$WL_PROBE_MODE" = isolated-omp ]; then
             export OMP_NUM_THREADS=1
           elif [ "$WL_PROBE_MODE" = isolated-blas ]; then

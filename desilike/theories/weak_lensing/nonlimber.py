@@ -9,6 +9,38 @@ import jax
 import jax.numpy as jnp
 
 
+def _radix2_fft(values, inverse=False):
+    """Batched radix-2 FFT using JAX butterflies on the final axis.
+
+    Bluestein workspaces have power-of-two lengths. Avoid native CPU FFT calls
+    here: concurrent ducc0 FFTs can block all XLA Eigen workers while waiting
+    for subtasks on the same pool. Elementwise butterflies need no nested FFT
+    thread pool and retain JIT, vmap and autodiff support.
+    """
+    length = values.shape[-1]
+    if length < 1 or length & (length - 1):
+        raise ValueError('Radix-2 FFT requires a positive power-of-two length')
+    stages = length.bit_length() - 1
+    index = jnp.arange(length)
+    reverse = jnp.zeros_like(index)
+    for bit in range(stages):
+        reverse = reverse | (((index >> bit) & 1) << (stages - bit - 1))
+    values = jnp.asarray(values, dtype=jnp.result_type(values, 1j))[..., reverse]
+    sign = 1 if inverse else -1
+    roots = jnp.exp(sign * 2j * jnp.pi * index / length).astype(values.dtype)
+
+    def butterfly(stage, current):
+        half = jnp.left_shift(1, stage)
+        even = index & ~half
+        odd = even | half
+        phase = roots[(index & (half - 1)) * (length >> (stage + 1))]
+        phase = jnp.where((index & half) == 0, phase, -phase)
+        return current[..., even] + phase * current[..., odd]
+
+    result = jax.lax.fori_loop(0, stages, butterfly, values)
+    return result / length if inverse else result
+
+
 def variable_fft(values, size, capacity, inverse=False):
     """Unnormalised DFT (or normalised inverse) of the first ``size`` values."""
     length = 1 << (2 * capacity - 1).bit_length()
@@ -19,7 +51,8 @@ def variable_fft(values, size, capacity, inverse=False):
     lag = jnp.arange(length)
     lag = jnp.where(lag < capacity, lag, lag - length)
     b = jnp.where(jnp.abs(lag) < size, jnp.exp(-sign * 1j * jnp.pi * lag**2 / size), 0)
-    result = jnp.fft.ifft(jnp.fft.fft(a) * jnp.fft.fft(b))[:capacity] * chirp
+    transformed = _radix2_fft(jnp.stack((a, b)))
+    result = _radix2_fft(transformed[0] * transformed[1], inverse=True)[:capacity] * chirp
     return result / size if inverse else result
 
 

@@ -34,6 +34,13 @@ def test_camb_nla_nonlimber_integration():
     shifted = float(jax.jit(pipe)({'omega_cdm': .125}))
     assert np.isfinite(reference) and np.isfinite(shifted)
     assert not np.isclose(reference, shifted)
+    np.testing.assert_allclose(shifted, float(pipe({'omega_cdm': .125})), rtol=1e-10, atol=1e-8)
+    # Sampler pools evaluate batches through jit(vmap(...)); exercise distinct
+    # cosmologies so both CAMB callbacks and non-Limber FFTs must be recomputed.
+    densities = np.array([.119, .121])
+    batched = jax.jit(jax.vmap(lambda density: pipe({'omega_cdm': density})))(densities)
+    expected = [float(pipe({'omega_cdm': density})) for density in densities]
+    np.testing.assert_allclose(batched, expected, rtol=1e-10, atol=1e-8)
 
 
 def test_custom_data_directory_is_shared(tmp_path, monkeypatch):
