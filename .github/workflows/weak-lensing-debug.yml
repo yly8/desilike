@@ -1,9 +1,6 @@
-name: weak-lensing-debug
+name: weak-lensing-cpu-regression
 on:
   workflow_dispatch:
-  push:
-    branches: [refactor-jax-des]
-    paths: [.github/workflows/weak-lensing-debug.yml]
 jobs:
   probe:
     runs-on: ubuntu-latest
@@ -11,11 +8,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mode: [isolated]
         repetition: [1, 2]
         python: ['3.12', '3.14']
     env:
-      WL_PROBE_MODE: ${{ matrix.mode }}
       PYTHONUNBUFFERED: '1'
     steps:
       - uses: actions/checkout@v4
@@ -32,7 +27,7 @@ jobs:
       - name: Install CI dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libopenmpi-dev gdb
+          sudo apt-get install -y libopenmpi-dev
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install pytest pytest-cov pytest-timeout
           mkdir -p wheelhouse
