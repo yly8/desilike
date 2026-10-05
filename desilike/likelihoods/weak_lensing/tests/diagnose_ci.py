@@ -1,6 +1,7 @@
 """Manual Linux CI probe for the CAMB/JAX hang; not collected as a pytest test."""
 import faulthandler
 import os
+import subprocess
 import threading
 import time
 from importlib.metadata import version
@@ -45,7 +46,18 @@ def integration_probe():
         report('COMPILE')
         compiled = lowered.compile()
         report('EXECUTE')
-        result = compiled(parameters)
+        def native_stacks():
+            report('NATIVE STACKS: execution exceeded 60 seconds')
+            subprocess.run(['sudo', 'gdb', '-batch', '-ex', 'set pagination off',
+                            '-ex', 'thread apply all bt 12', '-p', str(os.getpid())],
+                           timeout=40, check=False)
+        watchdog = threading.Timer(60, native_stacks)
+        watchdog.daemon = True
+        watchdog.start()
+        try:
+            result = compiled(parameters)
+        finally:
+            watchdog.cancel()
         report('DISPATCH returned; synchronize')
         shifted = float(result)
         report(f'COMPLETE: {shifted}')
@@ -75,5 +87,5 @@ if __name__ == '__main__':
                  'desilike/likelihoods/tests/test_bbn.py', 'desilike/likelihoods/tests/test_cmb.py',
                  'desilike/likelihoods/tests/test_supernovae.py']
     paths.append('desilike/likelihoods/weak_lensing/tests/test_des_y3.py')
-    raise SystemExit(pytest.main(['-v', '-s', '--cov=desilike', '--cov-report=', '--timeout=180',
+    raise SystemExit(pytest.main(['-v', '-s', '--cov=desilike', '--cov-report=', '--timeout=300',
                                  '--timeout-method=thread', *paths], plugins=[ProbePlugin()]))

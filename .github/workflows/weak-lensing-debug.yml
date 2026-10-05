@@ -11,7 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mode: [isolated, isolated-omp, isolated-blas, isolated-one-thread]
+        mode: [isolated, isolated-one-thread]
+        repetition: [1, 2]
     env:
       WL_PROBE_MODE: ${{ matrix.mode }}
       PYTHONUNBUFFERED: '1'
@@ -30,7 +31,7 @@ jobs:
       - name: Install CI dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libopenmpi-dev
+          sudo apt-get install -y libopenmpi-dev gdb
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install pytest pytest-cov pytest-timeout
           mkdir -p wheelhouse
