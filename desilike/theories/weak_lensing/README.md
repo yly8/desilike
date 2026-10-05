@@ -82,6 +82,14 @@ the grid is not frozen at a fiducial cosmology. Workspace sizes are chosen from
 the input redshift grid with headroom; exceeding capacity returns NaN rather
 than silently truncating the physical grid. Gradients are piecewise within an
 integer-grid region; grid transitions themselves are not differentiable.
+The power-of-two convolution FFTs use native JAX radix-2 butterflies, including
+under `jit` and `vmap`. This avoids an intermittent CPU FFT deadlock observed
+with jaxlib 0.11.2 on Linux: concurrent ducc0 FFT calls occupied the Eigen worker
+pool while waiting for nested tasks in that same pool. The implementation does
+not change process-wide thread settings or use a NumPy/SciPy runtime fallback.
+The physical FFTLog grid and normalization are unchanged. Butterfly execution
+can be slower than the native FFT backend; benchmark the full likelihood on
+the target machine when selecting sampler batch sizes.
 CAMB remains external and uses parameter finite differences. Nuisance parameters
 through the native non-Limber node now have a native autodiff path.
 Unused bin pairs are zero-filled.
