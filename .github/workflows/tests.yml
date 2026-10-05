@@ -103,6 +103,13 @@ jobs:
       # default that once let a deadlocked mpirun burn a whole job.
       timeout-minutes: 90
       run: |
+        # Concurrent non-Limber FFTs can exhaust XLA's CPU Eigen pool while each
+        # ducc0 FFT waits for work queued to that same pool (jaxlib 0.11.2).
+        # OMP/BLAS limits do not control this pool. Keep JIT and the full numerical
+        # test, but disable intra-op Eigen threading for the affected serial suite.
+        if [ "${{ matrix.suite }}" = serial ]; then
+          export XLA_FLAGS="${XLA_FLAGS:+$XLA_FLAGS }--xla_cpu_multi_thread_eigen=false"
+        fi
         # Tests live next to the code they cover; `testpaths` in pyproject.toml points at them.
         #
         # --timeout turns a deadlock into a named failure with a stack trace instead of a

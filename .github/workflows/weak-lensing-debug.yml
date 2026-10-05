@@ -11,8 +11,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mode: [isolated, isolated-one-thread]
+        mode: [isolated-xla]
         repetition: [1, 2]
+        python: ['3.12', '3.14']
     env:
       WL_PROBE_MODE: ${{ matrix.mode }}
       PYTHONUNBUFFERED: '1'
@@ -20,14 +21,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: ${{ matrix.python }}
       - uses: actions/cache@v4
         with:
           path: |
             wheelhouse
             ~/.cache/pip
-          key: Linux-pip-3.12-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: Linux-pip-3.12-
+          key: Linux-pip-${{ matrix.python }}-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: Linux-pip-${{ matrix.python }}-
       - name: Install CI dependencies
         run: |
           sudo apt-get update
@@ -48,5 +49,7 @@ jobs:
             export OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
           elif [ "$WL_PROBE_MODE" = isolated-one-thread ]; then
             export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
+          elif [ "$WL_PROBE_MODE" = isolated-xla ]; then
+            export XLA_FLAGS="${XLA_FLAGS:+$XLA_FLAGS }--xla_cpu_multi_thread_eigen=false"
           fi
           python -m desilike.likelihoods.weak_lensing.tests.diagnose_ci
