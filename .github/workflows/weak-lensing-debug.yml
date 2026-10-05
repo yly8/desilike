@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mode: [isolated, sequence, sequence-one-thread]
+        mode: [isolated, isolated-omp, isolated-blas, isolated-one-thread]
     env:
       WL_PROBE_MODE: ${{ matrix.mode }}
       PYTHONUNBUFFERED: '1'
@@ -41,7 +41,11 @@ jobs:
           python -m pip install .[tests]
       - name: Probe JIT stages and callbacks
         run: |
-          if [ "$WL_PROBE_MODE" = sequence-one-thread ]; then
+          if [ "$WL_PROBE_MODE" = isolated-omp ]; then
+            export OMP_NUM_THREADS=1
+          elif [ "$WL_PROBE_MODE" = isolated-blas ]; then
+            export OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
+          elif [ "$WL_PROBE_MODE" = isolated-one-thread ]; then
             export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
           fi
           python -m desilike.likelihoods.weak_lensing.tests.diagnose_ci

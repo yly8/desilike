@@ -68,7 +68,9 @@ if __name__ == '__main__':
         report(f'{name}={version(name)}')
     report(f"mode={os.environ['WL_PROBE_MODE']}")
     paths = []
-    if os.environ['WL_PROBE_MODE'] != 'isolated':
+    for name in ['OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS']:
+        report(f'{name}={os.environ.get(name, "unset")}')
+    if not os.environ['WL_PROBE_MODE'].startswith('isolated'):
         paths = ['desilike/emulators/tests/test_api.py', 'desilike/likelihoods/tests/test_bao.py',
                  'desilike/likelihoods/tests/test_bbn.py', 'desilike/likelihoods/tests/test_cmb.py',
                  'desilike/likelihoods/tests/test_supernovae.py']
