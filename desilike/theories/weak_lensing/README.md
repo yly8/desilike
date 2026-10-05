@@ -110,7 +110,7 @@ saved under `diagnostics/weak_lensing_consistency/`.
 Run the targeted regression tests with:
 
 ```sh
-python -m pytest -q desilike/theories/weak_lensing/tests
+python -m pytest -q desilike/theories/weak_lensing/tests desilike/likelihoods/weak_lensing/tests
 ```
 
 These cover the reference cubic interpolation, two-dimensional cosmology indexing,
@@ -121,7 +121,9 @@ JIT response to a change in `omega_cdm`.
 
 ## Notebooks
 
-- Validation and timing: [English](../../../desilike_test_en.ipynb) / [中文](../../../desilike_test.ipynb).
-- Usage tutorial: [English](../../../desilike_weak_lensing_tutorial_en.ipynb) / [中文](../../../desilike_weak_lensing_tutorial.ipynb).
+- Validation and timing: [English](../../../nb/desilike_test_wl.ipynb).
+- Usage tutorial: [English](../../../nb/desilike_weak_lensing_tutorial.ipynb).
 
-The English editions retain the numerical code and saved outputs of their Chinese counterparts. The validation notebook requires the external DES reference; the tutorial uses bundled data only.
+The English editions retain the numerical comparisons and saved results of their Chinese counterparts. Setup uses installed dependencies unless explicitly overridden through `DESILIKE_LSSTYPES_PATH` or `DESILIKE_COSMOPRIMO_PATH`. The validation notebook requires the external DES reference; the tutorial uses bundled data only. Execution commands are in [nb/README.md](../../../nb/README.md).
+
+Regression tests live in both `theories/weak_lensing/tests` and `likelihoods/weak_lensing/tests`, and are discovered by the existing CI suites. They include invalid bin/grid settings, required likelihood bin pairs, covariance/data ordering, complete JIT node outputs, and shear-ratio on/off behavior. The Y3 likelihood requires matching source/lens bin counts and all bin pairs used by its selected data (including shear ratios when enabled).

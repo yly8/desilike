@@ -276,11 +276,24 @@ class DESWeakLensing3x2pt(_ArrayOutputs):
             raise ValueError('fourier must be binned_bessels or legendre')
         self.nzbins = 4 if nzbins is None else nzbins
         self.nwbins = (5 if year == '1YR' else 6) if nwbins is None else nwbins
+        for name, count, maximum in [('nzbins', self.nzbins, 4), ('nwbins', self.nwbins, 5 if year == '1YR' else 6)]:
+            if not isinstance(count, (int, np.integer)) or isinstance(count, bool) or not 1 <= count <= maximum:
+                raise ValueError(f'{name} must be an integer between 1 and {maximum}')
         self.bin_pairs = bin_pairs if bin_pairs is not None else {
             'xip': [(i, j) for i in range(self.nzbins) for j in range(i, self.nzbins)],
             'xim': [(i, j) for i in range(self.nzbins) for j in range(i, self.nzbins)],
             'gammat': [(i, j) for i in range(self.nwbins) for j in range(self.nzbins)],
             'wtheta': [(i, i) for i in range(self.nwbins)]}
+        shapes = {'xip': (self.nzbins, self.nzbins), 'xim': (self.nzbins, self.nzbins),
+                  'gammat': (self.nwbins, self.nzbins), 'wtheta': (self.nwbins, self.nwbins)}
+        if set(self.bin_pairs) != set(shapes):
+            raise ValueError('bin_pairs must define xip, xim, gammat and wtheta (empty lists are allowed)')
+        self.bin_pairs = {name: [tuple(pair) for pair in pairs] for name, pairs in self.bin_pairs.items()}
+        for name, pairs in self.bin_pairs.items():
+            for pair in pairs:
+                if len(pair) != 2 or any(not isinstance(index, (int, np.integer)) or isinstance(index, bool)
+                                         or not 0 <= index < size for index, size in zip(pair, shapes[name])):
+                    raise ValueError(f'Invalid {name} bin pair {pair}: indices must be zero-based and within {shapes[name]}')
         self.data_dir = str(resolve_data_dir(data_dir))
         defaults = _parameters()
         for param in VariableCollection(params): defaults.set(param)
@@ -291,6 +304,9 @@ class DESWeakLensing3x2pt(_ArrayOutputs):
             precision={'calc_params': {'non_linear': 'takahashi', 'kmax_pk': 150.,
                                        'z_pk': np.linspace(0., 3., 100)}})
         self._k = np.geomspace(1e-5, 8e3, 4096) if k is None else np.asarray(k)
+        if (self._k.ndim != 1 or self._k.size < 4 or not np.all(np.isfinite(self._k))
+                or np.any(self._k <= 0) or np.any(np.diff(self._k) <= 0)):
+            raise ValueError('k must contain at least four finite, positive, strictly increasing values')
         kernel_params = {name: p for name, p in self.params.items() if not name.startswith('DES_m')}
         self.kernels = DESLensingKernels(self.cosmo, kernel_params, self.data_dir, des_model,
                                          self.nzbins, self.nwbins, self.fourier, Weyl, self._k)

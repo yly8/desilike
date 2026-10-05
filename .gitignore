@@ -33,3 +33,8 @@ docs/api/_autosummary
 
 # macOS metadata
 .DS_Store
+
+# Local weak-lensing notebooks and generated diagnostics
+/desilike_test.ipynb
+/desilike_weak_lensing_tutorial.ipynb
+/diagnostics/

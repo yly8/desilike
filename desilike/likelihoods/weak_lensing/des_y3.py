@@ -40,8 +40,25 @@ class BaseDESY3Likelihood(GaussianLikelihood):
         self.theory = theory
         self.use_sr = use_sr
         self.load_data(self.data_dir)
+        self._validate_theory()
         self.data_vector = self.make_vector(self.data_arrays)
         self.flatdata = Variable(f'{type(self).__name__}.flatdata', value=self.data_vector)
+
+    def _validate_theory(self):
+        if self.theory.des_model != 'DES_3YR':
+            raise ValueError('DES Y3 likelihood requires a DES_3YR theory')
+        if (self.theory.nzbins, self.theory.nwbins) != (self.nzbins, self.nwbins):
+            raise ValueError('Theory and likelihood bin counts must match')
+        required = {name: set() for name in self.data_types}
+        for typ, first, second, _ in self.used_items:
+            required[self.data_types[typ]].add((first, second))
+        if self.use_sr:
+            required.setdefault('gammat', set()).update(
+                (lens, source) for lens in range(self.sr_nbin_lens) for source in range(self.sr_nbin_source))
+        for name, pairs in required.items():
+            missing = pairs - set(map(tuple, self.theory.bin_pairs.get(name, [])))
+            if missing:
+                raise ValueError(f'Theory is missing required {name} bin pairs: {sorted(missing)}')
 
     def load_data(self, data_dir):
         ini = IniFile(os.path.join(data_dir, 'DES_3YR_final.dataset'))
@@ -57,6 +74,10 @@ class BaseDESY3Likelihood(GaussianLikelihood):
         self.intrinsic_alignment_model = ini.string('intrinsic_alignment_model')
         self.data_types = ini.string('data_types').split()
         self.used_types = ini.list('used_data_types', self.data_types)
+        if len(set(self.data_types)) != len(self.data_types) or set(self.data_types) - {'xip', 'xim', 'gammat', 'wtheta'}:
+            raise ValueError('data_types must contain unique, supported correlation names')
+        if set(self.used_types) - set(self.data_types):
+            raise ValueError('used_data_types must be a subset of data_types')
         with open(ini.relativeFileName('data_selection'), encoding="utf-8") as f:
             header = f.readline()
             assert (header.strip() == '#  type bin1 bin2 theta_min theta_max')
@@ -66,7 +87,7 @@ class BaseDESY3Likelihood(GaussianLikelihood):
             ranges[tp] = np.empty((6, 6), dtype=object)
         for line in lines:
             items = line.split()
-            if items[0] in self.used_types:
+            if items and items[0] in self.used_types:
                 bin1, bin2 = [int(x) - 1 for x in items[1:3]]
                 ranges[items[0]][bin1][bin2] = [np.float64(x) for x in items[3:]]
         self.ranges = ranges
@@ -190,12 +211,13 @@ class BaseDESY3Likelihood(GaussianLikelihood):
                               ((1 + self.zs) / self.chi_lens)[:, None] *
                               (self.num / self.chi_smat) * weights[:, None] * weights[None, :])
         ndata = len(self.used_items)
-        lens_ids = sorted({int(item[1]) for item in self.used_items if item[0] == 2})
+        gammat_index = self.data_types.index('gammat') if 'gammat' in self.data_types else None
+        lens_ids = sorted({int(item[1]) for item in self.used_items if item[0] == gammat_index})
         self._pm_templates = np.zeros((len(lens_ids), ndata))
         self._pm_lens = np.zeros(ndata, dtype=int)
         self._pm_source = np.zeros(ndata, dtype=int)
         for index, (typ, lens, source, theta) in enumerate(self.used_items):
-            if typ == 2:
+            if typ == gammat_index:
                 self._pm_templates[lens_ids.index(int(lens)), index] = self.theta_bins_radians[theta]**-2
                 self._pm_lens[index], self._pm_source[index] = lens, source
 
@@ -219,10 +241,10 @@ class BaseDESY3Likelihood(GaussianLikelihood):
         else:
             self.precision = covinv
         self.covinv = self.precision
-        self.flattheory = self.make_vector([self.theory.xip, self.theory.xim,
-                                           self.theory.gammat, self.theory.wtheta])
+        self.flattheory = self.make_vector([getattr(self.theory, name) for name in self.data_types])
         self.chi2_3x2pt = -2 * super().__call__()
         self.chi2_sr = jnp.asarray(0.)
+        self.theory_ratios = jnp.empty((0,))
         if self.use_sr:
             ratios = []
             for lens in range(self.sr_nbin_lens):
@@ -239,12 +261,12 @@ class BaseDESY3Likelihood(GaussianLikelihood):
 
     def tree_flatten(self):
         return [self.logpdf, self.flattheory, self.precision, self.chi2_3x2pt,
-                self.chi2_sr, self.sigma_crit_inv], None
+                self.chi2_sr, self.sigma_crit_inv, self.theory_ratios], None
 
     @classmethod
     def tree_unflatten(cls, aux, children):
         obj = object.__new__(cls)
         (obj.logpdf, obj.flattheory, obj.precision, obj.chi2_3x2pt,
-         obj.chi2_sr, obj.sigma_crit_inv) = children
+         obj.chi2_sr, obj.sigma_crit_inv, obj.theory_ratios) = children
         obj.covinv = obj.precision
         return obj
