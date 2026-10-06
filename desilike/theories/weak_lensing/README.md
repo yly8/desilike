@@ -135,3 +135,47 @@ JIT response to a change in `omega_cdm`.
 The English editions retain the numerical comparisons and saved results of their Chinese counterparts. Setup uses installed dependencies unless explicitly overridden through `DESILIKE_LSSTYPES_PATH` or `DESILIKE_COSMOPRIMO_PATH`. The validation notebook requires the external DES reference; the tutorial uses bundled data only. Execution commands are in [nb/README.md](../../../nb/README.md).
 
 Regression tests live in both `theories/weak_lensing/tests` and `likelihoods/weak_lensing/tests`, and are discovered by the existing CI suites. They include invalid bin/grid settings, required likelihood bin pairs, covariance/data ordering, complete JIT node outputs, and shear-ratio on/off behavior. The Y3 likelihood requires matching source/lens bin counts and all bin pairs used by its selected data (including shear ratios when enabled).
+
+## Bin-normalized k-dependent non-Limber theory
+
+`DESKDependentWeakLensing3x2pt` implements the separable approximation in the
+local reference `des-k.py`. It has the same constructor and nuisance parameters
+as `DESWeakLensing3x2pt` and works with the existing likelihood:
+
+```python
+from desilike.theories.weak_lensing import DESKDependentWeakLensing3x2pt
+
+likelihood = BaseDESY3Likelihood(
+    theory=DESKDependentWeakLensing3x2pt(Limber=False, Weyl=True), use_sr=True)
+loglike = build(likelihood)
+print(jax.jit(loglike)({'DES_DzL1': 0.012, 'DES_szL1': 1.12}))
+```
+
+For each lens auto-bin, the linear non-Limber integral uses `P(k, z_mean)`
+instead of `P(k, 0)`, and the radial kernel uses
+`g_eff(z) = sqrt(P(k_ref, z) / P(k_ref, z_mean))`, with physical
+`k_ref = 0.05/Mpc`. The RSD growth rate is `d ln(g_eff) / d ln(a)`;
+there is no additional k-dependent multiplier on the RSD transform.
+`z_mean` is computed after the lens photo-z shift and before the width stretch.
+Power and growth normalization are interpolated with differentiable JAX splines.
+For separable growth the normalization cancels and reproduces the original theory.
+
+This is not a full arbitrary unequal-time `P(k,z1,z2)` calculation. As in the
+reference, only the non-Limber clustering auto-bins use the new approximation.
+Cross-bin clustering retains the existing Limber treatment. The nonlinear
+Limber correction, shear, galaxy–galaxy lensing, intrinsic alignments and
+likelihood conventions are unchanged; `Limber=True` reproduces the base theory.
+
+Section 11 of both validation notebooks compares the new theory against the
+original `DESWeakLensing3x2pt`, sharing the same cosmology node and settings.
+It reports physical changes in angular spectra, correlations and chi-squared
+for 13 LCDM cosmologies plus a lens photo-z/width perturbation, with Weyl off/on.
+Each theory also receives an eager/JIT consistency check. Tables and bin-pair
+plots are saved to `diagnostics/weak_lensing_consistency/k_dependence_models/`.
+
+Section 12 separately validates the implementation against `des-k.py`, using
+independent matched CAMB calculations. Set `DES_Y3_K_REFERENCE` if `des-k.py`
+is not beside the original `des.py`. The reference file is only needed for
+this notebook validation, not at runtime in the theory or likelihood.
+Reference accuracy tables are saved to
+`diagnostics/weak_lensing_consistency/k_dependence/`.

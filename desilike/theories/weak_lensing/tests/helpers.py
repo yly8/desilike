@@ -19,3 +19,14 @@ class AnalyticDES(PrimordialCosmology):
                 self._results[key] = np.sqrt(.3 * (1. + z)**3 + .7)
             else:
                 self._results[key] = {'h': .7, 'Omega_m': .3, 'Omega_b': .05, 'Omega_cdm': .2487, 'Omega_ncdm_tot': .0013, 'omega_b': .022, 'omega_cdm': .12, 'm_ncdm_tot': .06}[method.split('.')[1]]
+
+
+class ScaleDependentDES(AnalyticDES):
+    def __call__(self):
+        super().__call__()
+        for key, spec in self._requirements.items():
+            if key[0] == 'fourier.pk':
+                redshift, wave_number = spec['z'], spec['k']
+                # Log power is linear in redshift: interpolation has an exact oracle.
+                self._results[key] *= (1 + redshift[:, None])**2 * np.exp(
+                    -2 * redshift[:, None] * (1 + .03 * np.log(wave_number[None, :])))

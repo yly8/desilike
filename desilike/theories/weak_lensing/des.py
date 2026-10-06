@@ -110,7 +110,7 @@ class DESLensingKernels(_ArrayOutputs):
     uses Mpc and physical k, as in the reference DES likelihood.
     """
     _outputs = ('h', 'chis', 'Hs', 'growth', 'growth_rate', 'pk_linear0', 'nz_lens',
-                'nz_source', 'qgal', 'qsw', 'tmp', 'tmpnonlimber', 'tmplens', 'tmpmw')
+                'nz_source', 'qgal', 'qsw', 'tmp', 'tmpnonlimber', 'tmplens', 'tmpmw', 'zmean_lens')
 
     def __init__(self, cosmo, params, data_dir, des_model, nzbins, nwbins, fourier, Weyl, k):
         self.cosmo, self.params = cosmo, params
@@ -170,16 +170,18 @@ class DESLensingKernels(_ArrayOutputs):
         lensing = jnp.where(chis[None, :] >= chis[:, None],
                             (1 - chis[:, None] / chis[None, :]) * dchis[None, :], 0.)
         p = {name: param.value for name, param in self.params.items()}
-        lens_nz = []
+        lens_nz, lens_means = [], []
         for b in range(self.nwbins):
             zshift = zs - p[f'DES_DzL{b + 1}']
             nz = jnp.where(zshift < 0, 0., spline(zshift, zs, self.zbin_w_sp[b]))
             nz = nz / jnp.trapezoid(nz, zshift)
             zmean = jnp.sum(zs * nz) / jnp.sum(nz)
+            lens_means.append(zmean)
             z_bias = p[f'DES_szL{b + 1}'] * (zs - zmean) + zmean
             nz = spline(zs, z_bias, jnp.where(z_bias < 0, 0., nz))
             lens_nz.append(nz / jnp.trapezoid(nz, zs))
         self.nz_lens = jnp.stack(lens_nz)
+        self.zmean_lens = jnp.stack(lens_means)
         prefactor = 3 * omegam * h**2 * (1e5 / 299792458.)**2 * chis * (1 + zs) / 2
         n_chi = Hs * self.nz_lens
         magnification = jnp.asarray([.43, .30, 1.75, 1.94, 1.56, 2.96])[:self.nwbins]
@@ -257,6 +259,8 @@ class DESWeakLensing3x2pt(_ArrayOutputs):
     """NLA DES theory. Kernels, projections and FFTLog use native JAX."""
     _outputs = ('xip', 'xim', 'gammat', 'wtheta', 'ell', 'cl_xip', 'cl_xim',
                 'cl_gammat', 'cl_wtheta', 'chis', 'Hs', 'nz_lens', 'nz_source')
+    _kernel_cls = DESLensingKernels
+    _nonlimber_cls = DESNonLimber
 
     def __init__(self, cosmo=None, fiducial='DESI', des_model='DES_3YR',
                  ia_model=None, Limber=None, Weyl=False, fourier=None,
@@ -308,9 +312,9 @@ class DESWeakLensing3x2pt(_ArrayOutputs):
                 or np.any(self._k <= 0) or np.any(np.diff(self._k) <= 0)):
             raise ValueError('k must contain at least four finite, positive, strictly increasing values')
         kernel_params = {name: p for name, p in self.params.items() if not name.startswith('DES_m')}
-        self.kernels = DESLensingKernels(self.cosmo, kernel_params, self.data_dir, des_model,
+        self.kernels = self._kernel_cls(self.cosmo, kernel_params, self.data_dir, des_model,
                                          self.nzbins, self.nwbins, self.fourier, Weyl, self._k)
-        self.nonlimber = None if self.Limber else DESNonLimber(
+        self.nonlimber = None if self.Limber else self._nonlimber_cls(
             self.kernels, [self.params[f'DES_b{i + 1}'] for i in range(self.nwbins)])
 
     def __post_init__(self, *args, **kwargs):
